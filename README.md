@@ -1,2 +1,0 @@
-# mobileamp
-Proof-of-concept

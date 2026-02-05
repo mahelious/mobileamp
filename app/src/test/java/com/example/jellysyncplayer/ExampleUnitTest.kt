@@ -1,4 +1,4 @@
-package com.mobileamp
+package com.example.jellysyncplayer
 
 import org.junit.Test
 
