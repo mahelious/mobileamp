@@ -1,4 +1,4 @@
-package com.example.mobileamp.network
+package com.myrhstudios.mobileamp.network
 
 interface JellyfinApi {
     // Retrofit endpoints go here
