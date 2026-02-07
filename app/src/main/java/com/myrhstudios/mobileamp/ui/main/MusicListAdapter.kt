@@ -6,9 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.myrhstudios.mobileamp.databinding.ItemMusicListBinding
 
 class MusicListAdapter(
-    private val items: List<MusicListItem>,
+    // private val items: List<MusicListItem>,
     private val onItemClick: (MusicListItem) -> Unit
 ) : RecyclerView.Adapter<MusicListAdapter.ViewHolder>() {
+
+    private val items = mutableListOf<MusicListItem>()
 
     inner class ViewHolder(val binding: ItemMusicListBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -45,5 +47,11 @@ class MusicListAdapter(
         }
     }
 
-    override fun getItemCount() = items.size
+    override fun getItemCount(): Int = items.size
+
+    fun submitList(newItems: List<MusicListItem>) {
+        items.clear()
+        items.addAll(newItems)
+        notifyDataSetChanged()
+    }
 }

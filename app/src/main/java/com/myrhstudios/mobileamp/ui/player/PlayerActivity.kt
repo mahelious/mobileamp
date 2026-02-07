@@ -1,16 +1,21 @@
 package com.myrhstudios.mobileamp.ui.player
 
+import java.io.File
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.media3.common.MediaItem
-import com.myrhstudios.mobileamp.R
 import com.myrhstudios.mobileamp.databinding.ActivityPlayerBinding
 import com.myrhstudios.mobileamp.player.MusicPlayer
 
 class PlayerActivity : AppCompatActivity() {
 
+    companion object {
+        const val EXTRA_AUDIO_PATH = "extra_audio_path"
+    }
+
     private lateinit var binding: ActivityPlayerBinding
+
     private lateinit var musicPlayer: MusicPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,15 +25,14 @@ class PlayerActivity : AppCompatActivity() {
 
         musicPlayer = MusicPlayer(this)
 
-        val mediaUri = Uri.parse(
-            "android.resource://${packageName}/${R.raw.test_track}"
-        )
+        val audioPath = intent.getStringExtra(EXTRA_AUDIO_PATH)
+            ?: run {
+                finish()
+                return
+            }
 
-        val mediaItem = MediaItem.fromUri(mediaUri)
-
-        musicPlayer.setMediaItem(mediaItem)
+        musicPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(File(audioPath))))
         binding.playerView.player = musicPlayer.getPlayer()
-
         musicPlayer.play()
     }
 
@@ -42,6 +46,7 @@ class PlayerActivity : AppCompatActivity() {
         musicPlayer.release()
     }
 
+    @Deprecated("onBackPressed is no longer called for back gestures; migrate to AndroidX's backward compatible OnBackPressedDispatcher")
     override fun onBackPressed() {
         musicPlayer.stop()
         super.onBackPressed()

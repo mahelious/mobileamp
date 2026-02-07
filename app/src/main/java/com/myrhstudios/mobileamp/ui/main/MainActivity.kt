@@ -2,16 +2,18 @@ package com.myrhstudios.mobileamp.ui.main
 
 import android.os.Bundle
 import android.content.Intent
-import com.myrhstudios.mobileamp.ui.player.PlayerActivity
+
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myrhstudios.mobileamp.databinding.ActivityMainBinding
+import com.myrhstudios.mobileamp.ui.player.PlayerActivity
 import com.myrhstudios.mobileamp.util.FileUtils
 import com.myrhstudios.mobileamp.util.MetadataUtils
 
 class MainActivity : androidx.appcompat.app.AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: MusicListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,11 +26,6 @@ class MainActivity : androidx.appcompat.app.AppCompatActivity() {
 
         setContentView(binding.root)
 
-        /*
-        startActivity(
-            Intent(this, PlayerActivity::class.java)
-        )
-         */
         val musicDir = FileUtils.getMusicDirectory(this)
         val files = musicDir?.let { FileUtils.listAudioFiles(it) } ?: emptyList()
 
@@ -45,8 +42,20 @@ class MainActivity : androidx.appcompat.app.AppCompatActivity() {
             )
 
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = MusicListAdapter(items) {
-            // Playback will come back later
+
+
+        // Playback will come back later
+
+        adapter = MusicListAdapter { item ->
+            val intent = Intent(this, PlayerActivity::class.java).apply {
+                putExtra(PlayerActivity.EXTRA_AUDIO_PATH, item.file.absolutePath)
+            }
+            startActivity(intent)
         }
+
+        binding.recyclerView.adapter = adapter
+
+        adapter.submitList(items)
+
     }
 }

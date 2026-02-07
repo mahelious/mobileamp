@@ -32,7 +32,7 @@ android {
 
     buildFeatures {
         viewBinding = true
-        // dataBinding = true
+        // dataBinding = false
         /*
         There are two binding systems that look similar but are different beasts:
         View Binding
