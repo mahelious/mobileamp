@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "JellySyncPlayer"
+rootProject.name = "MobileAmp"
 include(":app")
