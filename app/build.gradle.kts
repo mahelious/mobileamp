@@ -1,10 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.devtools.ksp") version "2.3.5"
 }
-/* plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-} */
 
 android {
     namespace = "com.myrhstudios.mobileamp"
@@ -55,6 +52,7 @@ kotlin {
 }
 
 dependencies {
+    val room_version = "2.8.4"
 
     // Android core
     implementation("androidx.core:core-ktx:1.13.1")
@@ -76,4 +74,13 @@ dependencies {
 
     // JSON
     implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+
+    // Room + SQLite for metadata cache
+    implementation("androidx.room:room-runtime:$room_version")
+    // KSP for annotation processing
+    ksp("androidx.room:room-compiler:$room_version")
+    // Optional: Kotlin Extensions and Coroutines support
+    implementation("androidx.room:room-ktx:$room_version")
+    // Optional: Paging 3 integration for large datasets
+    implementation("androidx.room:room-paging:$room_version")
 }

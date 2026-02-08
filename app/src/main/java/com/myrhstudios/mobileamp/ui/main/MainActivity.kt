@@ -3,12 +3,18 @@ package com.myrhstudios.mobileamp.ui.main
 import android.os.Bundle
 import android.content.Intent
 
-import androidx.appcompat.app.AppCompatActivity
+// import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.myrhstudios.mobileamp.data.db.AppDatabase
+import com.myrhstudios.mobileamp.data.library.LibraryScanner
+import com.myrhstudios.mobileamp.data.mappers.toMusicListItem
+// import com.myrhstudios.mobileamp.data.mappers
 import com.myrhstudios.mobileamp.databinding.ActivityMainBinding
 import com.myrhstudios.mobileamp.ui.player.PlayerActivity
-import com.myrhstudios.mobileamp.util.FileUtils
-import com.myrhstudios.mobileamp.util.MetadataUtils
+// import com.myrhstudios.mobileamp.util.FileUtils
+// import com.myrhstudios.mobileamp.util.MetadataUtils
+import kotlinx.coroutines.launch
 
 class MainActivity : androidx.appcompat.app.AppCompatActivity() {
 
@@ -26,26 +32,7 @@ class MainActivity : androidx.appcompat.app.AppCompatActivity() {
 
         setContentView(binding.root)
 
-        val musicDir = FileUtils.getMusicDirectory(this)
-        val files = musicDir?.let { FileUtils.listAudioFiles(it) } ?: emptyList()
-
-        val items = files
-            .map {
-                MetadataUtils.extractMetadata(it)
-            }
-            .sortedWith(
-                compareBy(
-                    { it.artist ?: "ZZZ" },
-                    { it.album ?: "ZZZ" },
-                    { it.title }
-                )
-            )
-
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-
-
-        // Playback will come back later
-
+        // 1. initiate RecyclerView + Adapter wiring
         adapter = MusicListAdapter { item ->
             val intent = Intent(this, PlayerActivity::class.java).apply {
                 putExtra(PlayerActivity.EXTRA_AUDIO_PATH, item.file.absolutePath)
@@ -53,9 +40,26 @@ class MainActivity : androidx.appcompat.app.AppCompatActivity() {
             startActivity(intent)
         }
 
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = adapter
 
-        adapter.submitList(items)
+        // 2. load track-cache database contents immediately
+        val db = AppDatabase.get(this)
+        val trackDao = db.trackDao()
+        lifecycleScope.launch {
+            val tracks = trackDao.getAllTracks()
+            adapter.submitList(tracks.map { it.toMusicListItem() })
+        }
 
+        // 3. kick-off incremental scan in background
+        lifecycleScope.launch {
+            val scanner = LibraryScanner(this@MainActivity, trackDao)
+            scanner.scan()
+
+            val tracks = trackDao.getAllTracks()
+            adapter.submitList(tracks.map { it.toMusicListItem() })
+        }
+        // This means the metadata cache is only sync'd on app start
+        // TODO - listener to Music/ events should auto-sync file-system changes to the metadata cache
     }
 }
