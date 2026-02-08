@@ -1,12 +1,10 @@
 package com.myrhstudios.mobileamp.ui.player
 
-import java.io.File
-import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
 import com.myrhstudios.mobileamp.databinding.ActivityPlayerBinding
-import com.myrhstudios.mobileamp.player.MusicPlayer
+import com.myrhstudios.mobileamp.playback.PlaybackManager
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -16,39 +14,22 @@ class PlayerActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlayerBinding
 
-    private lateinit var musicPlayer: MusicPlayer
-
+    @androidx.annotation.OptIn(UnstableApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityPlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        musicPlayer = MusicPlayer(this)
-
-        val audioPath = intent.getStringExtra(EXTRA_AUDIO_PATH)
-            ?: run {
-                finish()
-                return
-            }
-
-        musicPlayer.setMediaItem(MediaItem.fromUri(Uri.fromFile(File(audioPath))))
-        binding.playerView.player = musicPlayer.getPlayer()
-        musicPlayer.play()
+        val exoPlayer = PlaybackManager.getPlayer(this)
+        binding.playerView.player = exoPlayer
+        // when player view opens show the controller right away
+        // this may be undesirable as the Player layout matures
+        binding.playerView.showController()
     }
 
     override fun onStop() {
         super.onStop()
-        musicPlayer.pause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        musicPlayer.release()
-    }
-
-    @Deprecated("onBackPressed is no longer called for back gestures; migrate to AndroidX's backward compatible OnBackPressedDispatcher")
-    override fun onBackPressed() {
-        musicPlayer.stop()
-        super.onBackPressed()
+        val exoPlayer = PlaybackManager.getPlayer(this)
+        exoPlayer.pause()
     }
 }

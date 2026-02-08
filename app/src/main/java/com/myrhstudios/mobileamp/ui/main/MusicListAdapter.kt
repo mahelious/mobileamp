@@ -1,18 +1,20 @@
 package com.myrhstudios.mobileamp.ui.main
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.myrhstudios.mobileamp.R
 import com.myrhstudios.mobileamp.databinding.ItemMusicListBinding
 
 class MusicListAdapter(
-    // private val items: List<MusicListItem>,
-    private val onItemClick: (MusicListItem) -> Unit
+    private val onItemClick: (MusicListItem) -> Unit,
+    private val onItemLongClick: (View, MusicListItem) -> Unit
 ) : RecyclerView.Adapter<MusicListAdapter.ViewHolder>() {
 
     private val items = mutableListOf<MusicListItem>()
 
-    inner class ViewHolder(val binding: ItemMusicListBinding) :
+    class ViewHolder(val binding: ItemMusicListBinding) :
         RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -25,7 +27,18 @@ class MusicListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val context = holder.itemView.context
+
         val item = items[position]
+
+        holder.itemView.setOnClickListener {
+            onItemClick(item)
+        }
+
+        holder.itemView.setOnLongClickListener { view ->
+            onItemLongClick(view, item)
+            true
+        }
 
         holder.binding.title.text = "%s (%d:%02d)".format(
             item.title,
@@ -39,7 +52,7 @@ class MusicListAdapter(
             item.artist != null ->
                 item.artist
             else ->
-                "Unknown Artist"
+                context.getString(R.string.noname_artist)
         }
 
         holder.binding.root.setOnClickListener {
