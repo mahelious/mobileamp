@@ -3,17 +3,13 @@ package com.myrhstudios.mobileamp.ui.main
 import android.os.Bundle
 import android.content.Intent
 
-// import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.myrhstudios.mobileamp.data.db.AppDatabase
 import com.myrhstudios.mobileamp.data.library.LibraryScanner
 import com.myrhstudios.mobileamp.data.mappers.toMusicListItem
-// import com.myrhstudios.mobileamp.data.mappers
 import com.myrhstudios.mobileamp.databinding.ActivityMainBinding
 import com.myrhstudios.mobileamp.ui.player.PlayerActivity
-// import com.myrhstudios.mobileamp.util.FileUtils
-// import com.myrhstudios.mobileamp.util.MetadataUtils
 import kotlinx.coroutines.launch
 
 class MainActivity : androidx.appcompat.app.AppCompatActivity() {

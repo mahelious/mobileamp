@@ -14,15 +14,18 @@ class LibraryScanner(
     private val trackDao: TrackDao
 ) {
 
-    suspend fun scan() = withContext(Dispatchers.IO) {
+    fun listAudioFiles(dir: File): List<File> {
         val registeredExtensions = setOf("mp3", "m4a", "flac", "ogg", "wav")
-
-        val musicDir = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
-            ?: return@withContext
-
-        val audioFiles = musicDir.walkTopDown()
+        return dir.walkTopDown()
             .filter { it.isFile && it.extension.lowercase() in registeredExtensions }
             .toList()
+    }
+
+    suspend fun scan() = withContext(Dispatchers.IO) {
+        val audioFiles = listAudioFiles(
+            context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)
+            ?: return@withContext
+        )
 
         val seenPaths = mutableListOf<String>()
 
